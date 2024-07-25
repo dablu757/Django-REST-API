@@ -3,6 +3,7 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view, throttle_classes
 from rest_framework.response import Response
 from rest_framework.throttling import UserRateThrottle
+from rest_framework import status
 
 
 #get post end point
@@ -39,3 +40,85 @@ def get_user_data(request):
         'status' : 200,
         'payload' : serializer.data
     })
+
+#post path operation to get data from uder
+@api_view(['POST'])
+def create_user(request):
+    user_data = request.data
+    serializer = UserDetailSerializer(data=request.data)
+
+    if not serializer.is_valid():
+        return Response({
+            'status code' : 501,
+            'error' : serializer.errors,
+            'message' : 'something went to wrong'
+        })
+    
+    serializer.save()
+    return Response({
+        'message' : 'data successfully createed into the table'
+            })
+
+
+@api_view(['PUT'])
+def update_user_details(request, id):
+
+    try:
+        user_data = UserDetails.objects.get(id = id)
+        serializer = UserDetailSerializer(user_data, data=request.data, partial = True) #partial = true means it
+        # update only rquired fields not all fielsd i.e just
+        #just like PATCH  method
+
+        if not serializer.is_valid():
+           return Response({
+               'status':403,
+               'error' : serializer.errors,
+               'message' : 'something went to wrong'
+           })
+        
+        serializer.save()
+        return Response({
+            'status' : 200,
+            'message' : 'data successfully updated'
+        }) 
+
+    except Exception as e:
+        return Response({
+            'status code' : 403,
+            'Error' : str(e),
+            'message' : 'some ting went to wrong'
+        })
+
+
+# delete path operation
+@api_view(['DELETE'])
+def delete_user(request):
+    try:
+        # Get the ID from the query parameters
+        user_id = request.GET.get('id')
+        print(f"Got id: {user_id}")
+
+        # Check if the ID is provided
+        if not user_id:
+            return Response({
+                'message': 'ID not provided in request'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Try to get the user with the provided ID
+        user_obj = UserDetails.objects.get(id=user_id)
+        user_obj.delete()
+        
+        return Response({
+            'message': 'User details deleted'
+        }, status=status.HTTP_200_OK)
+    
+    except UserDetails.DoesNotExist:
+        return Response({
+            'message': 'User not found'
+        }, status=status.HTTP_404_NOT_FOUND)
+    
+    except Exception as e:
+        return Response({
+            'message': 'An error occurred',
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
