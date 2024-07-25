@@ -16,7 +16,7 @@ class Category(models.Model):
     category_name = models.CharField(max_length = 100)
 
 
-class Book(models.Model):
-    Category = models.ForeignKey(Category, on_delete = models.CASCADE)
+class Books(models.Model):
+    category = models.ForeignKey(Category, on_delete = models.CASCADE)
     book_tiltle = models.CharField(max_length = 100)
 

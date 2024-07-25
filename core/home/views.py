@@ -122,3 +122,92 @@ def delete_user(request):
             'message': 'An error occurred',
             'error': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+
+# category get path operation
+@api_view(['GET'])
+def get_category(request):
+
+    try:
+        category_obj = Category.objects.all()
+        serializer = CategorySerializer(category_obj, many = True)
+        return Response({
+            'status' : status.HTTP_200_OK,
+            'payload' : serializer.data
+        })
+
+    except Exception as e:
+        return Response({
+            'message' : 'something went to wrong',
+            'error' : str(e)
+        }, status= status.HTTP_400_BAD_REQUEST)
+    
+
+
+# cayegory post path operation
+@api_view(['POST'])
+def create_category(request):
+    data = request.data
+    try:
+        serializer = CategorySerializer(data=data)
+        if not serializer.is_valid():
+            return Response({
+                'message' : 'please enter valid data'
+            })
+        
+        serializer.save()
+        return Response({
+            'status' : 200,
+            'message' : 'sucuessfull'
+        })
+    
+    except Exception as e:
+        return Response({
+            'message' : 'something went to wrong',
+            'error' : str(e)
+        },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+# book get path operation
+@api_view(['GET'])
+def get_book(request):
+
+    try:
+        book_obj = Books.objects.all()
+        serializer = BookSerializer(book_obj, many = True)
+        return Response({
+            'status' : status.HTTP_200_OK,
+            'payload' : serializer.data
+        })
+
+    except Exception as e:
+        return Response({
+            'message' : 'something went to wrong',
+            'error' : str(e)
+        }, status= status.HTTP_400_BAD_REQUEST)
+    
+
+
+# book post path operation
+@api_view(['POST'])
+def create_book(request):
+    try:
+        serializer = BookSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response({
+                'message' : 'please enter valid data',
+                'error ': serializer.errors
+            })
+        
+        serializer.save()
+        return Response({
+            'status' : 200,
+            'message' : 'sucuessfull'
+        })
+    
+    except Exception as e:
+        return Response({
+            'message' : 'something went to wrong',
+            'error' : str(e)
+        },status=status.HTTP_500_INTERNAL_SERVER_ERROR)
